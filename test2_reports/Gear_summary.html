@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnoGAN vs Autoencoder: Gear - Summary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        body.mode-jp .lang-en { display: none; }
+        body.mode-en .lang-jp { display: none; }
+        .js-plotly-plot, .plot-container { width: 100% !important; height: 100% !important; }
+
+        /* 💡 スマホの横スクロールバーを見えなくする魔法 */
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-[#0f172a] py-6 md:py-12 px-2 sm:px-4 lg:px-8 text-slate-200 mode-jp">
+
+    <!-- 💡 ボタンを右下に移動 (スマホ操作の邪魔にならないように) -->
+    <div class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
+        <button id="langToggleBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-mono text-[10px] md:text-xs py-2 px-4 rounded-full border border-blue-400/50 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all">Switch to English</button>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-2 md:mt-4 mb-16">
+        <header class="text-center mb-8 md:mb-12">
+            <p class="text-[10px] md:text-xs font-bold text-amber-500 tracking-widest uppercase mb-1 md:mb-2">Representation Learning Analysis</p>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2 md:mb-4">AnoGAN vs Autoencoder</h1>
+            <p class="text-xs md:text-base text-slate-400">潜在空間における異常分離能力の比較検証</p>
+            <div class="mt-6 flex flex-wrap justify-center gap-2"><a href="Fuzzy_summary.html" class="px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm transition-colors border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700">Fuzzy</a>
+<a href="DoS_summary.html" class="px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm transition-colors border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700">DoS</a>
+<a href="RPM_summary.html" class="px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm transition-colors border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700">RPM</a>
+<a href="Gear_summary.html" class="px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm transition-colors border border-slate-600 bg-blue-600 text-white">Gear</a>
+</div>
+        </header>
+
+        <section class="bg-slate-900 rounded-2xl md:rounded-3xl shadow-2xl border border-slate-700 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-red-500"></div>
+            <div class="p-4 md:p-8 pb-0">
+                <h2 class="text-xl md:text-3xl font-extrabold text-white tracking-tight mb-4 md:mb-6">Gear <span class="text-base md:text-xl font-light text-slate-400">異常検知 ＆ 潜在空間 比較解析</span></h2>
+
+                <!-- 💡 overflow-x-auto で横スクロールを許可 -->
+                <div class="border-b border-slate-700 overflow-x-auto"><ul class="flex flex-nowrap w-max -mb-px text-xs md:text-sm font-medium text-center">
+<li class="mr-1 md:mr-2"><a href="Gear_summary.html" class="inline-block px-4 py-3 md:p-4 border-b-2 border-blue-500 text-blue-500 bg-blue-500/10 rounded-t-lg transition-colors whitespace-nowrap">概要 ＆ 定量評価比較</a></li>
+<li class="mr-1 md:mr-2"><a href="Gear_anogan.html" class="inline-block px-4 py-3 md:p-4 border-b-2 border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-300 rounded-t-lg transition-colors whitespace-nowrap">🌟 AnoGAN 潜在空間</a></li>
+<li class="mr-1 md:mr-2"><a href="Gear_ae.html" class="inline-block px-4 py-3 md:p-4 border-b-2 border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-300 rounded-t-lg transition-colors whitespace-nowrap">📉 Autoencoder 潜在空間</a></li>
+</ul>
+</div>
+            </div>
+            <div class="p-4 md:p-8 ">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+            <div class="bg-blue-900/20 p-4 md:p-6 rounded-xl border border-blue-500/30">
+                <h3 class="text-base md:text-lg font-bold text-blue-400 mb-4 flex items-center">🌟 AnoGAN (本研究提案)</h3>
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">異常検知率 (ROC-AUC)</p><p class="text-2xl md:text-3xl font-mono font-black text-white">0.9966</p></div>
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">潜在空間の線形分離性 (SVM)</p><p class="text-2xl md:text-3xl font-mono font-black text-white">0.9688</p></div>
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">分離度 DB Score (UMAP)</p><p class="text-lg md:text-xl font-mono text-slate-300">0.7639</p></div>
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">分離度 DB Score (MAPE)</p><p class="text-lg md:text-xl font-mono text-slate-300">1.7278</p></div>
+                </div>
+                <p class="text-[10px] md:text-xs text-blue-400 mt-4 break-all">最適化MAPE: {'lambda_repel': 5.0, 'gamma': 30.0}</p>
+            </div>
+            <div class="bg-slate-800/50 p-4 md:p-6 rounded-xl border border-slate-600">
+                <h3 class="text-base md:text-lg font-bold text-slate-400 mb-4 flex items-center">📉 Autoencoder (ベースライン)</h3>
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">異常検知率 (ROC-AUC)</p><p class="text-2xl md:text-3xl font-mono font-black text-slate-300">0.9952</p></div>
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">潜在空間の線形分離性 (SVM)</p><p class="text-2xl md:text-3xl font-mono font-black text-slate-300">0.5062</p></div>
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">分離度 DB Score (UMAP)</p><p class="text-lg md:text-xl font-mono text-slate-400">38.1396</p></div>
+                    <div><p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">分離度 DB Score (MAPE)</p><p class="text-lg md:text-xl font-mono text-slate-400">9.2911</p></div>
+                </div>
+                <p class="text-[10px] md:text-xs text-slate-500 mt-4 break-all">最適化MAPE: {'lambda_repel': 20.0, 'gamma': 80.0}</p>
+            </div>
+        </div>
+
+        <div class="bg-indigo-900/30 p-4 md:p-6 rounded-xl border border-indigo-500/50 mb-6 md:mb-8">
+            <h4 class="text-xs md:text-sm font-bold text-indigo-400 mb-3 md:mb-4 uppercase tracking-wide flex items-center">📊 AIによる定量指標の総合比較 (AnoGAN vs Autoencoder)</h4>
+            <div class="text-xs md:text-sm space-y-2">
+                <p class="text-slate-300 lang-jp leading-relaxed">4つの指標を総合的に比較すると、AnoGANの一貫した優位性が明らかになります。ROC-AUCはAnoGANが0.9966、AEが0.9952とわずかにAnoGANが優れているものの、最も顕著な違いは潜在空間の表現品質に見られます。AnoGANは線形SVM精度で0.9688を達成し、AEの0.5062と比較して圧倒的に高い線形分離性を示しています。さらに、UMAPのDavies-Bouldinスコア（0.7639 vs 38.1396）とMAPEのDavies-Bouldinスコア（1.7278 vs 9.2911）の両方で、AnoGANが潜在空間においてより密接で明確に分離されたクラスターを形成する能力を持つことが示されています。総じて、AnoGANはわずかながら優れた異常検知性能を提供するだけでなく、はるかに構造化され識別能力の高い潜在表現を構築しています。</p>
+                <p class="text-slate-400 lang-en leading-relaxed">A comprehensive comparison of the four metrics reveals AnoGAN's consistent superiority. While AnoGAN's ROC-AUC (0.9966) is marginally higher than AE's (0.9952), the most striking differences lie in the latent space representation quality. AnoGAN achieves a significantly higher Linear SVM Accuracy (0.9688) compared to AE (0.5062), indicating vastly improved linear separability. Furthermore, the UMAP Davies-Bouldin Score (0.7639 vs 38.1396) and MAPE Davies-Bouldin Score (1.7278 vs 9.2911) both demonstrate AnoGAN's ability to form much tighter, better-separated clusters in its latent space. Overall, AnoGAN not only offers slightly better detection performance but, more importantly, constructs a far more structured and discriminative latent representation.</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-800/80 p-4 md:p-6 rounded-xl border-l-4 border-amber-500">
+            <h4 class="text-xs md:text-sm font-bold text-white mb-3 md:mb-4 uppercase tracking-wide flex items-center">🎓 学術的考察: 表現学習の優位性</h4>
+            <div class="space-y-4 text-xs md:text-sm">
+                <div><span class="text-blue-400 font-bold block md:inline">1. 検知性能の比較:</span> <span class="text-slate-300 lang-jp">AnoGANとAEは、「Gear」攻撃に対して非常に高い異常検知性能を示しており、ROC-AUCスコアはそれぞれ0.9966と0.9952です。これらの値は、ほぼ完璧な検知能力を示唆しています。AnoGANがわずかに数値的優位性（0.0014の差）を示しているものの、両モデルが異常の特定に非常に効果的であることは注目に値し、標準的なAutoencoderでもこの特定のコンテキストでは強力な性能を達成できることを示唆しています。ただし、このわずかな差でも、最高の信頼性が求められるアプリケーションでは依然として重要である可能性があります。</span><span class="text-slate-400 lang-en">Both AnoGAN and AE exhibit exceptionally high anomaly detection performance for the 'Gear' attack, with ROC-AUC scores of 0.9966 and 0.9952, respectively. These values indicate near-perfect detection capabilities. While AnoGAN shows a slight quantitative edge (0.0014 difference), it's important to note that both models are highly effective at identifying anomalies, suggesting that even a standard Autoencoder can achieve strong performance in this specific context. However, this marginal difference might still be critical in applications demanding the absolute highest reliability.</span></div>
+                <div><span class="text-amber-500 font-bold block md:inline">2. 表現学習(潜在空間)の優位性:</span> <span class="text-slate-300 lang-jp">線形SVM精度は、単純なAEと比較してAnoGANの潜在空間構築の重要性を示す説得力のある証拠となります。AnoGANの精度0.9688は、正常サンプルと異常サンプルがその潜在空間においてほぼ完全に線形分離可能であることを示しています。これは、敵対的学習の直接的な結果です。ジェネレーターは現実的な「正常」データを生成することを学習し、ディスクリミネーターは本物のデータと生成された（ひいては異常な）データを区別することを学習します。これにより、潜在空間は正常データを密接かつ明確に表現し、異常を分離された、容易に識別可能な領域に押しやります。対照的に、AEのSVM精度0.5062は、ランダムチャンスとほとんど変わらず、その潜在空間が正常データと異常データの表現を混合しているため、単純な線形境界では分離できないことを示しています。したがって、AnoGANの潜在空間を構築する意義は、異常が正常パターンから本質的に明確に分離される、高度に識別力のある構造化された表現を学習する優れた能力にあり、これは堅牢な異常検知と解釈性にとって極めて重要です。</span><span class="text-slate-400 lang-en">The Linear SVM Accuracy provides compelling evidence for the significance of AnoGAN's latent space construction over a simple AE. AnoGAN's accuracy of 0.9688 indicates that normal and anomalous samples are almost perfectly linearly separable in its latent space. This is a direct consequence of its adversarial training: the generator learns to produce realistic 'normal' data, while the discriminator learns to distinguish real from generated (and by extension, anomalous) data. This forces the latent space to represent normal data tightly and distinctly, pushing anomalies into separate, easily identifiable regions. In stark contrast, AE's SVM accuracy of 0.5062, barely better than random chance, demonstrates that its latent space mixes the representations of normal and anomalous data, making them inseparable with a simple linear boundary. Thus, the meaning of building AnoGAN's latent space lies in its superior ability to learn highly discriminative, structured representations where anomalies are inherently well-separated from normal patterns, crucial for robust anomaly detection and interpretability.</span></div>
+                <div><span class="text-emerald-400 font-bold block md:inline">3. 結論:</span> <span class="text-slate-300 lang-jp">本研究は、異常検知におけるAnoGANのようなGANベースモデルの真の強みと貢献が、わずかに高いROC-AUCスコアを達成するだけに留まらないことを示しています。AnoGANは確かに検知性能においてわずかな改善を提供するものの、その最大の利点は、意味的に豊かで、高度に構造化され、はるかに分離性の高い潜在空間を構築する能力にあります。線形SVM精度、UMAP Davies-Bouldinスコア、およびMAPE Davies-Bouldinスコアにおける圧倒的な優位性は、AnoGANの敵対的学習アプローチが、正常パターンと異常パターンが本質的に区別される表現をモデルに効果的に学習させていることを浮き彫りにしています。この能力は、より堅牢で信頼性の高い異常検知を促進するだけでなく、異常を明確に定義された領域に投影することで、異常の解釈性を高め、よりきめ細かな分析と事前介入への道を開きます。本研究は、表現学習における質的な改善が、GANベースの異常検知モデルの重要でありながらしばしば過小評価される貢献であることを強調しています。</span><span class="text-slate-400 lang-en">This study demonstrates that the true strength and contribution of GAN-based models like AnoGAN in anomaly detection extend beyond merely achieving marginally higher ROC-AUC scores. While AnoGAN indeed offers a slight improvement in detection performance, its paramount advantage lies in its capacity to construct a semantically richer, highly structured, and significantly more separable latent space. The overwhelming superiority in Linear SVM Accuracy, UMAP Davies-Bouldin, and MAPE Davies-Bouldin scores highlights that AnoGAN's adversarial training regimen effectively forces the model to learn representations where normal and anomalous patterns are inherently distinct. This capability not only facilitates more robust and reliable anomaly detection but also enhances the interpretability of anomalies by projecting them into well-defined regions, paving the way for more nuanced analysis and proactive interventions. The research underscores that the qualitative improvement in representation learning is a critical, often understated, contribution of GAN-based anomaly detection models.</span></div>
+            </div>
+        </div>
+        </div>
+        </section>
+    </div>
+
+    <script>
+        const langBtn = document.getElementById('langToggleBtn');
+        const savedLang = localStorage.getItem('langMode') || 'mode-jp';
+        document.body.classList.remove('mode-jp', 'mode-en');
+        document.body.classList.add(savedLang);
+        langBtn.innerText = savedLang === 'mode-jp' ? 'Switch to English' : '日本語に切り替え';
+
+        langBtn.addEventListener('click', () => {
+            const isJp = document.body.classList.contains('mode-jp');
+            const newMode = isJp ? 'mode-en' : 'mode-jp';
+            document.body.classList.remove('mode-jp', 'mode-en');
+            document.body.classList.add(newMode);
+            localStorage.setItem('langMode', newMode);
+            langBtn.innerText = newMode === 'mode-jp' ? 'Switch to English' : '日本語に切り替え';
+            window.dispatchEvent(new Event('resize'));
+        });
+    </script>
+</body>
+</html>
